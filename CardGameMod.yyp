@@ -34,6 +34,11 @@
     "IDEVersion": "2023.2.1.75",
   },
   "resources": [
+    {"id":{"name":"sCards","path":"sprites/sCards/sCards.yy",},},
+    {"id":{"name":"oCard","path":"objects/oCard/oCard.yy",},},
+    {"id":{"name":"moveCard","path":"sounds/moveCard/moveCard.yy",},},
+    {"id":{"name":"oGameController","path":"objects/oGameController/oGameController.yy",},},
+    {"id":{"name":"lerpTo","path":"scripts/lerpTo/lerpTo.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
   ],
   "RoomOrderNodes": [
