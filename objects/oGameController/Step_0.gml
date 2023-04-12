@@ -308,8 +308,185 @@ switch(current_phase) {
 		}
 		break
 		case phases.resolve:
-			show_debug_message("Resolve");
-			//Push centercard into both hands, then compare
+			//show_debug_message("Resolve");
+
+			if(showTimer == 0){
+				//Check who has higher single card
+				for(i=0; i<3; i++){
+					aiHand[i].faceDown = false;
+					if(aiHand[i].val>aiCardVal){
+						aiCardVal = aiHand[i].val;
+					}
+					if(pHand[i].val>pCardVal){
+						pCardVal = pHand[i].val;
+					}
+				}
+				//show_debug_message("AI Max Card");
+				//show_debug_message(aiCardVal);
+				//show_debug_message("Player Max Card");
+				//show_debug_message(pCardVal);
+				for(i=0; i<3; i++){
+					show_debug_message("AI Card");
+					show_debug_message(aiHand[i].val);
+				}
+				//Push centercard into both hands, then check
+				array_push(aiHand, centerCard);
+				array_push(pHand, centerCard);
+				for(i=0; i<4; i++){
+					comparator = aiHand[i].val;
+					for(j=0; j<4; j++){
+						if(comparator == aiHand[j].val){
+							aiScore++;
+						}
+						if(aiScore>aiMax){
+							aiMax = aiScore;
+						}	
+					}
+					aiScore = 0;
+				}
+				for(i=0; i<4; i++){
+					comparator = pHand[i].val;
+					for(j=0; j<4; j++){
+						if(comparator == pHand[j].val){
+							pScore++;
+						}
+						if(pScore>pMax){
+							pMax = pScore;
+						}	
+					}
+					pScore = 0;
+				}
+				show_debug_message("AI Score");
+				show_debug_message(aiMax);
+				show_debug_message("Player Score");
+				show_debug_message(pMax);
+				if(aiMax == pMax){//Equal amount of combo
+					if(aiCardVal == pCardVal){
+					}
+					else if(aiCardVal > pCardVal){
+						aiRounds++;
+						audio_play_sound(losePoint, 15, false);
+					}
+					else{
+						pRounds++;
+						audio_play_sound(getPoint, 15, false);
+					}
+				}
+				else if(aiMax>pMax){
+					aiRounds++;
+					audio_play_sound(losePoint, 15, false);
+				}
+				else{
+					pRounds++;
+					audio_play_sound(getPoint, 15, false);
+				}
+				showTimer++;
+			}
+			else if(showTimer>0 && showTimer<150000){
+				showTimer++;
+			}
+			else{
+				showTimer = 0;
+				current_phase = phases.cleanup;
+			}
 			break;
+		case phases.cleanup:
+			show_debug_message("Cleanup");
+			switch(cleanStep){
+				case 0://Move Centercard to discard
+					ds_stack_push(discard, centerCard);
+					if(lerpTimer<20){
+						lerpTo(centerCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 1://Start removing player and ai cards from hand
+					moverCard = aiHand[0];
+					aiHand[0] = -1;
+					ds_stack_push(discard, moverCard);
+					if(lerpTimer<20){
+						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 2:
+					moverCard = aiHand[1];
+					aiHand[1] = -1;
+					ds_stack_push(discard, moverCard);
+					if(lerpTimer<20){
+						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 3:
+					moverCard = aiHand[2];
+					aiHand[2] = -1;
+					ds_stack_push(discard, moverCard);
+					if(lerpTimer<20){
+						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 4:
+					moverCard = pHand[0];
+					aiHand[0] = -1;
+					ds_stack_push(discard, moverCard);
+					if(lerpTimer<20){
+						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 5:
+					moverCard = pHand[1];
+					pHand[1] = -1;
+					ds_stack_push(discard, moverCard);
+					if(lerpTimer<20){
+						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 6:
+					moverCard = pHand[2];
+					pHand[2] = -1;
+					ds_stack_push(discard, moverCard);
+					if(lerpTimer<20){
+						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+						lerpTimer++;
+					}
+					else{
+						lerpTimer = 0;
+						cleanStep++;
+					}
+					break;
+				case 7://All cards in discard, shuffle discard into eck
+					
+					break;
+			}
+			break;
+			
 	default:
 }

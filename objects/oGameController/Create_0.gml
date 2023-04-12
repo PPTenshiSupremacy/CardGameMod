@@ -24,6 +24,8 @@ aiCardSelected = false;
 cardDealt = false;
 lerpTimer = 0;
 playerDiscard = false;
+showTimer = 0;
+cleanStep = 0;
 //Position Variables
 deckX = 64;
 deckY = 256;
@@ -44,3 +46,8 @@ pRounds = 0;
 aiRounds = 0;
 pScore = 0;
 aiScore = 0;
+comparator = 0;
+aiMax = 0;
+pMax = 0;
+aiCardVal = 0;
+pCardVal = 0;
