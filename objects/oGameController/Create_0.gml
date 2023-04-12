@@ -11,7 +11,7 @@ enum phases {
 current_phase = phases.start;
 
 //Setup Variables
-cards = array_create(52);
+cards = array_create(0);
 deck = ds_stack_create();
 discard = ds_stack_create();
 pHand = array_create(3);
@@ -26,6 +26,7 @@ lerpTimer = 0;
 playerDiscard = false;
 showTimer = 0;
 cleanStep = 0;
+activeCard = 0;
 //Position Variables
 deckX = 64;
 deckY = 256;
@@ -37,6 +38,8 @@ centerX = 320;
 centerY = 256;
 discardX = 480;
 discardY = 256;
+reshuffleYPos = 256;
+reshuffleCount = 0;
 //Holder Variables
 centerCard = 0;
 moverCard = 0;

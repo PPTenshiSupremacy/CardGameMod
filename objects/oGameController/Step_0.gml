@@ -1,40 +1,41 @@
 switch(current_phase) {
 	case phases.start:
-		//show_debug_message("Start Phase");
-		//Create cards
-		for(i = 0; i < 52; i++) {
-			if(i < 13){
-				var tempCard = instance_create_layer(64, 256, "Instances", oCard);
+		for(i=0; i<13; i++){
+			var tempCard = instance_create_layer(64, 256, "Instances", oCard);
 				with(tempCard){
-					suit = suits.clubs;
+					suit = 0;
 					val = other.i+1;
 				}
-				cards[i] = tempCard;
-			}
-			else if(i >= 13 && i < 26){
-				var tempCard = instance_create_layer(64, 256, "Instances", oCard);
+				show_debug_message(tempCard.suit*tempCard.val);
+				array_push(cards, tempCard);
+		}
+		for(i=0; i<13; i++){
+			//show_debug_message(i);
+			var tempCard = instance_create_layer(64, 256, "Instances", oCard);
 				with(tempCard){
-					suit = suits.diamonds;
-					val = other.i-12;
+					suit = 1;
+					val = other.i+1;
 				}
-				cards[i] = tempCard;
-			}
-			else if(i >= 26 && i < 39){
-				var tempCard = instance_create_layer(64, 256, "Instances", oCard);
+				show_debug_message(tempCard.suit*tempCard.val);
+				array_push(cards, tempCard);
+		}
+		for(i=0; i<13; i++){
+			var tempCard = instance_create_layer(64, 256, "Instances", oCard);
 				with(tempCard){
-					suit = suits.hearts;
-					val = other.i-25;
+					suit = 2;
+					val = other.i+1;
 				}
-				cards[i] = tempCard;
-			}
-			else if(i >= 39 && i < 52){
-				var tempCard = instance_create_layer(64, 256, "Instances", oCard);
+				show_debug_message(tempCard.suit*tempCard.val);
+				array_push(cards, tempCard);
+		}
+		for(i=0; i<13; i++){
+			var tempCard = instance_create_layer(64, 256, "Instances", oCard);
 				with(tempCard){
-					suit = suits.spades;
-					val = other.i-38;
+					suit = 3;
+					val = other.i+1;
 				}
-				cards[i] = tempCard;
-			}
+				show_debug_message(tempCard.suit*tempCard.val);
+				array_push(cards, tempCard);
 		}
 		//Shuffle cards
 		randomise();
@@ -42,7 +43,7 @@ switch(current_phase) {
 		//Copy array into stack
 		for(i = 0; i<52; i++) {
 			ds_stack_push(deck, cards[i]);
-			show_debug_message(ds_stack_size(deck));
+			//show_debug_message(ds_stack_size(deck));
 		}
 		//Reset positions to pile
 		yPos = deckY;
@@ -57,7 +58,8 @@ switch(current_phase) {
 		
 		current_phase = phases.deal;
 		break;
-	case phases.deal:
+	case phases.deal:    
+		
 		//Add 3 to both hand
 		for(i = 0; i<3; i++){
 			pHand[i] = ds_stack_pop(deck);
@@ -67,6 +69,7 @@ switch(current_phase) {
 		current_phase = phases.dealing;
 		break;
 	case phases.dealing:
+	show_debug_message("dealing")
 		switch(dealCount){
 			case 0:
 				//show_debug_message(pHand[0].y);
@@ -144,7 +147,7 @@ switch(current_phase) {
 					dealTimer++;
 				}
 				else{
-					dealCount++;
+					dealCount=0;
 					audio_play_sound(moveCard, 10, false);
 					dealTimer = 0;
 					centerCard.faceDown = false;
@@ -321,13 +324,17 @@ switch(current_phase) {
 						pCardVal = pHand[i].val;
 					}
 				}
-				//show_debug_message("AI Max Card");
-				//show_debug_message(aiCardVal);
-				//show_debug_message("Player Max Card");
-				//show_debug_message(pCardVal);
+				show_debug_message("AI Max Card");
+				show_debug_message(aiCardVal);
+				show_debug_message("Player Max Card");
+				show_debug_message(pCardVal);
 				for(i=0; i<3; i++){
 					show_debug_message("AI Card");
 					show_debug_message(aiHand[i].val);
+				}
+				for(i=0; i<3; i++){
+					show_debug_message("Player Card");
+					show_debug_message(pHand[i].val);
 				}
 				//Push centercard into both hands, then check
 				array_push(aiHand, centerCard);
@@ -362,128 +369,248 @@ switch(current_phase) {
 				show_debug_message(pMax);
 				if(aiMax == pMax){//Equal amount of combo
 					if(aiCardVal == pCardVal){
+						show_debug_message("True Draw");
 					}
 					else if(aiCardVal > pCardVal){
 						aiRounds++;
 						audio_play_sound(losePoint, 15, false);
+						show_debug_message("Lose by high card");
 					}
 					else{
 						pRounds++;
 						audio_play_sound(getPoint, 15, false);
+						show_debug_message("Win by high card");
 					}
 				}
 				else if(aiMax>pMax){
 					aiRounds++;
 					audio_play_sound(losePoint, 15, false);
+					show_debug_message("Lose by combo");
 				}
 				else{
 					pRounds++;
 					audio_play_sound(getPoint, 15, false);
+					show_debug_message("Win by combo");
 				}
 				showTimer++;
 			}
-			else if(showTimer>0 && showTimer<150000){
+			else if(showTimer>0 && showTimer<240){
 				showTimer++;
 			}
 			else{
 				showTimer = 0;
 				current_phase = phases.cleanup;
+				yPos = discardY;
+				show_debug_message(ds_stack_size(discard));
 			}
 			break;
 		case phases.cleanup:
-			show_debug_message("Cleanup");
+			//show_debug_message("Cleanup");
+			
 			switch(cleanStep){
 				case 0://Move Centercard to discard
-					ds_stack_push(discard, centerCard);
-					if(lerpTimer<20){
-						lerpTo(centerCard, discardX, discardY - (ds_stack_size(discard)*2))
+					if(lerpTimer == 0){
+						ds_stack_push(discard, centerCard);
+						centerCard.faceDown = true;
+						lerpTimer++;
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(centerCard, discardX, yPos)
 						lerpTimer++;
 					}
 					else{
 						lerpTimer = 0;
 						cleanStep++;
+						audio_play_sound(moveCard, 10, false);
 					}
 					break;
 				case 1://Start removing player and ai cards from hand
-					moverCard = aiHand[0];
-					aiHand[0] = -1;
-					ds_stack_push(discard, moverCard);
-					if(lerpTimer<20){
-						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+					
+					//show_debug_message(moverCard.x);
+					//show_debug_message(moverCard.y);
+					if(lerpTimer == 0){
+						moverCard = aiHand[0];
+						moverCard.faceDown = true;
+						ds_stack_push(discard, moverCard);
+						lerpTimer++;
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(moverCard, discardX, yPos)
 						lerpTimer++;
 					}
 					else{
 						lerpTimer = 0;
+						aiHand[0] = -1;
 						cleanStep++;
+						audio_play_sound(moveCard, 10, false);
 					}
 					break;
 				case 2:
+					if(lerpTimer == 0){
 					moverCard = aiHand[1];
-					aiHand[1] = -1;
+					moverCard.faceDown = true;
 					ds_stack_push(discard, moverCard);
-					if(lerpTimer<20){
-						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+					lerpTimer++;
+					
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(moverCard, discardX,yPos)
 						lerpTimer++;
 					}
 					else{
+						aiHand[1] = -1;
 						lerpTimer = 0;
 						cleanStep++;
+						audio_play_sound(moveCard, 10, false);
 					}
 					break;
 				case 3:
+				if(lerpTimer == 0){
 					moverCard = aiHand[2];
-					aiHand[2] = -1;
+					moverCard.faceDown = true;
 					ds_stack_push(discard, moverCard);
-					if(lerpTimer<20){
-						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+					lerpTimer++;
+					
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(moverCard, discardX, yPos)
 						lerpTimer++;
 					}
 					else{
+						aiHand[2] = -1;
 						lerpTimer = 0;
 						cleanStep++;
+						audio_play_sound(moveCard, 10, false);
 					}
 					break;
 				case 4:
+				if(lerpTimer == 0){
 					moverCard = pHand[0];
-					aiHand[0] = -1;
+					moverCard.faceDown = true;
 					ds_stack_push(discard, moverCard);
-					if(lerpTimer<20){
-						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+					lerpTimer++;
+					
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(moverCard, discardX,yPos)
 						lerpTimer++;
 					}
 					else{
+						pHand[0] = -1;
 						lerpTimer = 0;
 						cleanStep++;
+						audio_play_sound(moveCard, 10, false);
 					}
 					break;
 				case 5:
+				if(lerpTimer == 0){
 					moverCard = pHand[1];
-					pHand[1] = -1;
+					moverCard.faceDown = true;
 					ds_stack_push(discard, moverCard);
-					if(lerpTimer<20){
-						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+					lerpTimer++;
+					
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(moverCard, discardX, yPos)
 						lerpTimer++;
 					}
 					else{
+						pHand[1] = -1;
 						lerpTimer = 0;
 						cleanStep++;
+						audio_play_sound(moveCard, 10, false);
 					}
 					break;
 				case 6:
+				if(lerpTimer == 0){
 					moverCard = pHand[2];
-					pHand[2] = -1;
+					moverCard.faceDown = true;
 					ds_stack_push(discard, moverCard);
-					if(lerpTimer<20){
-						lerpTo(moverCard, discardX, discardY - (ds_stack_size(discard)*2))
+					lerpTimer++;
+					
+					}
+					
+					else if(lerpTimer>0 && lerpTimer<20){
+						lerpTo(moverCard, discardX,yPos)
 						lerpTimer++;
 					}
 					else{
+						pHand[2] = -1;
 						lerpTimer = 0;
 						cleanStep++;
+						yPos = 0;
+						audio_play_sound(moveCard, 10, false);
+						
 					}
 					break;
 				case 7://All cards in discard, shuffle discard into eck
-					
+					//Reshuffle discard pile into deck
+					//show_debug_message("Reshuffling");
+					//reshuffling = true;
+					//show_debug_message("Stuck");
+					if(activeCard == false && ds_stack_size(discard)!=0){//If card is not active, start new one
+						activeCard = true;
+						moverCard = ds_stack_pop(discard);
+						show_debug_message("Running");
+						//show_debug_message(ds_stack_size(discard));
+					}
+					else if(activeCard == true){
+						if(lerpTimer < 10){
+							moverCard.faceDown = true;
+							var currentX = moverCard.x;
+							var currentY = moverCard.y;
+							var xx = lerp(currentX, deckX, 0.4);
+							var yy = lerp(currentY, reshuffleYPos, 0.4);
+							//Move card
+							moverCard.x = xx;
+							moverCard.y = yy;
+							lerpTimer++;
+							
+							//show_debug_message(lerpTimer)
+							//show_debug_message(int64(cardHolder.x));
+						}
+						else if(lerpTimer=10){
+							show_debug_message("Finish");
+							reshuffleCount++;
+							audio_play_sound(moveCard, 10, false);
+							moverCard.depth = -reshuffleCount;
+							if(reshuffleCount%3 == 0){
+								reshuffleYPos -=2;
+							}
+							activeCard = false;
+							lerpTimer = 0;
+							
+						}
+					}
+					else if(activeCard == false && ds_stack_size(discard) == 0){
+						array_shuffle_ext(cards);
+						ds_stack_clear(deck);
+						for(i = 0; i<52; i++) {
+							ds_stack_push(deck, cards[i]);//Copy array into stack
+							show_debug_message("Adding cards to deck");
+						}
+						show_debug_message(ds_stack_size(deck));
+						//Reset positions to pile properly
+						yPos = 256;
+						for(i = 0; i<ds_stack_size(deck); i++) {
+							cards[i].y=yPos;
+							cards[i].depth = -i;
+							if(i % 6 == 0){
+								yPos-=4;
+							}
+						}
+						
+						reshuffleCount = 0;
+						reshuffleYPos = 256;
+						current_phase = phases.deal;
+					}
+					//show_debug_message("test");
 					break;
 			}
 			break;
